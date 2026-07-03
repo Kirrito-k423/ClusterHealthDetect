@@ -1,0 +1,87 @@
+# ClusterHealthDetect
+
+`ClusterHealthDetect` 是一个基于 `torchrun` 的 NPU/GPU/CPU 集群健康基准仓，用来把真实训练性能劣化拆成可复现实测项：
+
+- CPU 计算吞吐和当前进程可绑定 CPU map
+- NPU/GPU matmul 吞吐
+- H2D host-to-device copy 带宽
+- D2D device-to-device copy 带宽，以及本机卡间 `sendrecv/local_host_pair`
+- `all_gather` 本机多卡、全局多机、跨机点对点 `sendrecv/inter_host_pair` 通信带宽
+- 空载、CPU 干扰、设备计算干扰等不同负载 profile
+
+它的目标不是替代生产 SFT，而是给类似 Qwen3.5 397B SFT 中 “pod4 比 pod8 慢 10%，定位到 allgather 慢，但单独打流没差异” 的问题提供更完整的对照证据。
+
+## 快速开始
+
+单机 8 卡：
+
+```bash
+NPROC_PER_NODE=8 bash scripts/run_single_node.sh
+```
+
+双机时，在两台机器同一路径部署仓库，rank 0 机器执行：
+
+```bash
+NNODES=2 NODE_RANK=0 MASTER_ADDR=<rank0-ip> NPROC_PER_NODE=8 bash scripts/run_multinode.sh
+```
+
+rank 1 机器执行：
+
+```bash
+NNODES=2 NODE_RANK=1 MASTER_ADDR=<rank0-ip> NPROC_PER_NODE=8 bash scripts/run_multinode.sh
+```
+
+常用短跑 smoke：
+
+```bash
+NPROC_PER_NODE=2 \
+PROFILES=idle \
+TESTS=affinity,cpu,device,h2d,d2d,collective \
+SIZES_MB=4,16 \
+CPU_SIZES=256,512 \
+DEVICE_SIZES=512,1024 \
+SECONDS_PER_SIZE=0.5 \
+ITERS=3 \
+WARMUP=1 \
+bash scripts/run_single_node.sh
+```
+
+## 输出
+
+每个 rank 会写出：
+
+```text
+results/.../rank_00000.json
+```
+
+rank 0 会额外写出：
+
+```text
+results/.../results.json
+results/.../report.md
+```
+
+如果 `all_gather_object` 在某些后端不可用，至少每个 rank 的 JSON 仍会保留下来。
+
+## 关键参数
+
+- `BACKEND=auto|hccl|nccl|gloo`：默认自动选择。Ascend NPU 通常为 `hccl`。
+- `DEVICE=auto|npu|cuda|cpu`：默认自动选择。
+- `PROFILES=idle,cpu:2,device`：空载、每 rank 2 个 CPU burner、设备 matmul 背景负载。
+- `TESTS=all`：可选 `affinity,cpu,device,h2d,d2d,collective`。
+- `SIZES_MB=16,64,256`：copy/collective tensor 大小。
+- `CPU_SIZES=512,1024,2048`：CPU matmul N。
+- `DEVICE_SIZES=1024,2048,4096`：NPU/GPU matmul N。
+- `ENABLE_P2P=1`：开启 `sendrecv/local_host_pair` 和 `sendrecv/inter_host_pair`。部分 HCCL 版本的 P2P 可能很慢或不可用，所以默认关闭。
+
+## 解读建议
+
+对比 pod4 和 pod8 时建议至少保留这些维度：
+
+1. 环境：torch/torch_npu/HCCL/CANN 版本、容器 cpuset、`ASCEND_VISIBLE_DEVICES`。
+2. 绑核：`affinity` 中 `allowed_cpus`、`bindable_cpus`、`unavailable_cpus`。
+3. 单 rank 上限：CPU/NPU matmul、H2D、D2D。
+4. 分层通信：`collective/all_gather/local_host`、`global`、`sendrecv/local_host_pair`、`sendrecv/inter_host_pair`。
+5. 负载敏感性：`idle` 与 `cpu:N`、`device` profile 的下降幅度。
+
+如果维护打流只覆盖了裸 `all_gather`，但生产 SFT 在 CPU 绑核、H2D、设备计算、NUMA 或跨机 NIC 竞争下才退化，这个仓可以把“空载没差异”和“训练负载下有差异”分开记录。

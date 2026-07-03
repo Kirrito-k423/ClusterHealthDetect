@@ -1,0 +1,16 @@
+[project]
+name = "cluster-health-detect"
+version = "0.1.0"
+description = "Torchrun-based CPU/NPU cluster health and bandwidth probes"
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "ClusterHealthDetect contributors"}]
+
+[tool.ruff]
+line-length = 140
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
