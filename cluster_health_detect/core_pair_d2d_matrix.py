@@ -64,12 +64,16 @@ def resolve_device_kind(stack: dict[str, Any], requested: str) -> str:
     return "none"
 
 
-def all_gather_once(torch: Any, device: str, dtype_name: str, size_mb: int, iters: int, warmup: int) -> dict[str, Any]:
+def make_all_gather_buffers(torch: Any, device: str, dtype_name: str, size_mb: int) -> tuple[Any, list[Any], int]:
     dtype = torch_dtype(torch, dtype_name)
     element_size = torch.tensor([], dtype=dtype).element_size()
     numel = max(1, size_mb * 1024 * 1024 // element_size)
     tensor = torch.empty(numel, dtype=dtype, device=device)
     output = [torch.empty_like(tensor) for _ in range(torch.distributed.get_world_size())]
+    return tensor, output, numel * element_size
+
+
+def measure_all_gather(torch: Any, device: str, tensor: Any, output: list[Any], bytes_per_rank: int, size_mb: int, iters: int, warmup: int) -> dict[str, Any]:
     for _ in range(warmup):
         torch.distributed.all_gather(output, tensor)
     synchronize(torch, device)
@@ -80,7 +84,6 @@ def all_gather_once(torch: Any, device: str, dtype_name: str, size_mb: int, iter
     synchronize(torch, device)
     torch.distributed.barrier()
     elapsed = max(time.perf_counter() - start, 1e-12)
-    bytes_per_rank = numel * element_size
     avg_seconds = elapsed / iters
     return {
         "status": "ok",
@@ -120,6 +123,8 @@ def main() -> int:
     parser.add_argument("--iters", type=int, default=20)
     parser.add_argument("--warmup", type=int, default=5)
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--checkpoint-every-pairs", type=int, default=256, help="Write rank-local partial JSON after this many CPU pairs; 0 disables checkpoints")
+    parser.add_argument("--record-ranks", default="rank0", choices=["rank0", "all"], help="Record metrics from rank0 only, or from all ranks")
     args = parser.parse_args()
 
     info = rank_info()
@@ -135,7 +140,38 @@ def main() -> int:
     stack = import_torch_stack()
     device_kind = resolve_device_kind(stack, args.device_kind)
 
+    meta: dict[str, Any] = {
+        "created_at": now_utc(),
+        "argv": sys.argv,
+        "env": env_snapshot(),
+        "rank_info": info,
+        "torch_stack": stack,
+        "device_kind": device_kind,
+        "device_pair": list(device_pair),
+        "rank0_cpus": rank0_cpus,
+        "rank1_cpus": rank1_cpus,
+        "sizes_mb": sizes_mb,
+        "record_ranks": args.record_ranks,
+        "affinity_summary": affinity_summary,
+        "npu_smi_head": run_cmd(["npu-smi", "info"], timeout=10),
+    }
     metrics: list[dict[str, Any]] = []
+    record_this_rank = args.record_ranks == "all" or info["rank"] == 0
+
+    def save_partial(pair_count: int, cpu0: int | None = None, cpu1: int | None = None) -> None:
+        payload = {
+            "meta": {
+                **meta,
+                "partial": True,
+                "updated_at": now_utc(),
+                "completed_pairs_per_rank": pair_count,
+                "last_rank0_cpu": cpu0,
+                "last_rank1_cpu": cpu1,
+            },
+            "metrics": metrics,
+        }
+        write_json(out_dir / f"rank_{info['rank']:05d}_partial.json", payload)
+
     torch = None
     device = "cpu"
     if stack["torch_ok"] and device_kind in {"npu", "cuda"}:
@@ -155,6 +191,8 @@ def main() -> int:
                 metrics.append(metric_base(info, None, None, None, status="error", reason=backend_or_error, device=device))
             else:
                 rank_barrier(torch)
+                buffers = {size_mb: make_all_gather_buffers(torch, device, args.dtype, size_mb) for size_mb in sizes_mb}
+                pair_count = 0
                 for repeat in range(args.repeats):
                     for cpu0 in rank0_cpus:
                         for cpu1 in rank1_cpus:
@@ -162,43 +200,7 @@ def main() -> int:
                             bind_ok, actual, bind_err = set_current_affinity({target_cpu})
                             bind_actual_cpus_list = format_cpu_list(actual)
                             if not bind_ok or target_cpu not in actual:
-                                metrics.append(
-                                    metric_base(
-                                        info,
-                                        cpu0,
-                                        cpu1,
-                                        repeat,
-                                        status="error",
-                                        operation="bind_cpu",
-                                        target_cpu=target_cpu,
-                                        actual_cpus=actual,
-                                        reason=bind_err,
-                                        device=device,
-                                    )
-                                )
-                                continue
-                            rank_barrier(torch)
-                            for size_mb in sizes_mb:
-                                try:
-                                    result = all_gather_once(torch, device, args.dtype, size_mb, args.iters, args.warmup)
-                                    metrics.append(
-                                        metric_base(
-                                            info,
-                                            cpu0,
-                                            cpu1,
-                                            repeat,
-                                            **result,
-                                            backend=backend_or_error,
-                                            device=device,
-                                            device_kind=device_kind,
-                                            device_pair=list(device_pair),
-                                            dtype=args.dtype,
-                                            target_cpu=target_cpu,
-                                            bind_actual_cpus=actual,
-                                            bind_actual_cpus_list=bind_actual_cpus_list,
-                                        )
-                                    )
-                                except Exception as exc:
+                                if record_this_rank:
                                     metrics.append(
                                         metric_base(
                                             info,
@@ -206,34 +208,68 @@ def main() -> int:
                                             cpu1,
                                             repeat,
                                             status="error",
-                                            operation="all_gather",
-                                            size_mb=size_mb,
-                                            error=repr(exc),
-                                            device=device,
+                                            operation="bind_cpu",
                                             target_cpu=target_cpu,
+                                            actual_cpus=actual,
+                                            reason=bind_err,
+                                            device=device,
                                         )
                                     )
+                                continue
                             rank_barrier(torch)
+                            for size_mb in sizes_mb:
+                                try:
+                                    tensor, output, bytes_per_rank = buffers[size_mb]
+                                    result = measure_all_gather(torch, device, tensor, output, bytes_per_rank, size_mb, args.iters, args.warmup)
+                                    if record_this_rank:
+                                        metrics.append(
+                                            metric_base(
+                                                info,
+                                                cpu0,
+                                                cpu1,
+                                                repeat,
+                                                **result,
+                                                backend=backend_or_error,
+                                                device=device,
+                                                device_kind=device_kind,
+                                                device_pair=list(device_pair),
+                                                dtype=args.dtype,
+                                                target_cpu=target_cpu,
+                                                bind_actual_cpus=actual,
+                                                bind_actual_cpus_list=bind_actual_cpus_list,
+                                            )
+                                        )
+                                except Exception as exc:
+                                    if record_this_rank:
+                                        metrics.append(
+                                            metric_base(
+                                                info,
+                                                cpu0,
+                                                cpu1,
+                                                repeat,
+                                                status="error",
+                                                operation="all_gather",
+                                                size_mb=size_mb,
+                                                error=repr(exc),
+                                                device=device,
+                                                target_cpu=target_cpu,
+                                            )
+                                        )
+                            rank_barrier(torch)
+                            pair_count += 1
+                            if args.checkpoint_every_pairs and pair_count % args.checkpoint_every_pairs == 0:
+                                save_partial(pair_count, cpu0, cpu1)
+                                if info["rank"] == 0:
+                                    total_pairs = len(rank0_cpus) * len(rank1_cpus) * args.repeats
+                                    print(f"progress repeat={repeat + 1}/{args.repeats} pairs={pair_count}/{total_pairs} metrics_rank={len(metrics)}", flush=True)
 
     if original_affinity is not None:
         set_current_affinity(original_affinity)
 
-    meta = {
-        "created_at": now_utc(),
-        "argv": sys.argv,
-        "env": env_snapshot(),
-        "rank_info": info,
-        "torch_stack": stack,
-        "device_kind": device_kind,
-        "device_pair": list(device_pair),
-        "rank0_cpus": rank0_cpus,
-        "rank1_cpus": rank1_cpus,
-        "affinity_summary": affinity_summary,
-        "npu_smi_head": run_cmd(["npu-smi", "info"], timeout=10),
-    }
+    meta["finished_at"] = now_utc()
     write_json(out_dir / f"rank_{info['rank']:05d}.json", {"meta": meta, "metrics": metrics})
     merged: list[dict[str, Any]] = metrics
-    if torch is not None and torch.distributed.is_available() and torch.distributed.is_initialized():
+    if args.record_ranks == "all" and torch is not None and torch.distributed.is_available() and torch.distributed.is_initialized():
         gathered: list[Any] = [None for _ in range(info["world_size"])]
         torch.distributed.all_gather_object(gathered, metrics)
         merged = []
@@ -259,4 +295,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

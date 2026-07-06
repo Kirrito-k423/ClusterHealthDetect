@@ -11,7 +11,7 @@
 - CPU 绑核可行性、NUMA 绑核策略对 H2D/D2D/allgather 的影响矩阵
 - 逐 CPU core 绑定后，对每张 NPU 卡的 H2D 实测矩阵
 - 固定两张 NPU 卡时，两个 rank 绑定到不同 CPU core 对卡间 allgather/D2D 通信的影响矩阵
-- Excel `.xlsx` 热力图，便于横向比较 pod、NUMA、rank 和负载 profile
+- Excel `.xlsx` 与 PNG 热力图，便于横向比较 pod、NUMA、rank 和负载 profile
 
 它的目标不是替代生产 SFT，而是给类似 Qwen3.5 397B SFT 中 “pod4 比 pod8 慢 10%，定位到 allgather 慢，但单独打流没差异” 的问题提供更完整的对照证据。
 
@@ -65,7 +65,7 @@ REPEATS=3 \
 bash scripts/run_numa_affinity_matrix.sh
 ```
 
-不相信 NUMA 配置时，直接逐 core × NPU card 测 H2D。下面会把每个可绑定 CPU core 逐一绑定，然后分别测到每张 NPU 的 H2D 带宽，输出 `core-h2d-matrix.xlsx`：
+不相信 NUMA 配置时，直接逐 core × NPU card 测 H2D。下面会把每个可绑定 CPU core 逐一绑定，然后分别测到每张 NPU 的 H2D 带宽，输出 `core-h2d-matrix.xlsx` 和 `png/h2d_cpu_core_by_npu_<size>MB.png`：
 
 ```bash
 CPUS=auto \
@@ -87,7 +87,7 @@ REPEATS=1 \
 bash scripts/run_core_h2d_matrix.sh
 ```
 
-固定两张卡，测试两个 rank 分别绑到不同 CPU core 对卡间 allgather/D2D 通信的影响。输出 `core-pair-d2d-matrix.xlsx`，行是 rank0 绑定 core，列是 rank1 绑定 core：
+固定两张卡，测试两个 rank 分别绑到不同 CPU core 对卡间 allgather/D2D 通信的影响。输出 `core-pair-d2d-matrix.xlsx` 和 `png/d2d_rank0_core_by_rank1_core_<size>MB.png`，行是 rank0 绑定 core，列是 rank1 绑定 core：
 
 ```bash
 DEVICE_PAIR=0,1 \
@@ -97,6 +97,8 @@ SIZES_MB=16,64,256 \
 REPEATS=3 \
 bash scripts/run_core_pair_d2d_matrix.sh
 ```
+
+`RANK0_CPUS=auto` 和 `RANK1_CPUS=auto` 是平方级扫描。A3 上 640 个 CPU core 的固定两卡全量矩阵是 `640 x 640 = 409600` 个 core-pair；长跑建议先用 `SIZES_MB=8 ITERS=1 WARMUP=0 REPEATS=1` 验证结构，再按需要提高 size/iters。D2D runner 默认 `RECORD_RANKS=rank0`，rank1 仍参与通信和绑核，只是不重复记录 collective 计时，避免全量矩阵在收尾时生成双倍 JSON。
 
 如果只想从已有 JSON 生成 Excel：
 
@@ -121,6 +123,7 @@ results/.../report.md
 results/.../numa-affinity-heatmap.xlsx
 results/.../core-h2d-matrix.xlsx
 results/.../core-pair-d2d-matrix.xlsx
+results/.../png/*.png
 ```
 
 如果 `all_gather_object` 在某些后端不可用，至少每个 rank 的 JSON 仍会保留下来。
@@ -139,6 +142,27 @@ results/.../core-pair-d2d-matrix.xlsx
 - `CPUS_PER_RANK=0`：绑核策略里每个 rank 使用多少 CPU。`0` 表示保留该策略解析出的完整 CPU 集合。
 - `CPUS=auto` / `DEVICES=auto`：逐 core H2D 矩阵的 CPU 和 NPU 范围。支持 `0-15`、`0,80,160` 这样的列表。
 - `DEVICE_PAIR=0,1` / `RANK0_CPUS=auto` / `RANK1_CPUS=auto`：固定两卡通信矩阵的卡号与两个 rank 的 CPU core 扫描范围。
+- `RECORD_RANKS=rank0|all`：固定两卡通信矩阵记录 rank0 计时，或记录所有 rank。全量 core-pair 建议保持默认 `rank0`。
+
+## 背景负载是什么意思
+
+背景负载是 benchmark 主测试旁边人为制造的共存压力，用来模拟训练时 CPU/NPU 不空闲的情况：
+
+- `idle`：不额外制造压力，只跑目标测试。
+- `cpu:N`：每个 rank 旁边启动 `N` 个 CPU burner 进程，持续做 CPU 矩阵/数值计算，制造调度、cache 和内存带宽压力。它不是绑核。
+- `device`：每个 rank 在设备侧启动 matmul burner，制造 NPU/GPU 计算压力，观察 H2D、D2D、allgather 在设备繁忙时是否下降。
+
+如果 `cpu:1` 比 `idle` 更高，不能直接解释为“绑核更好”。它通常说明调度、预热、HCCL 算法状态或采样噪声改变了测试窗口。绑核结论应该看显式 `sched_setaffinity` 的 NUMA/core 矩阵。
+
+## A3 全量样例
+
+本仓已在 A3 机器上跑过两组全量 core 矩阵，报告和产物见 `reports/`：
+
+- `A3-core-h2d-matrix-full.xlsx`：640 CPU core x 16 NPU x 16/64/256MB H2D。
+- `A3-core-h2d-matrix-full-16MB.png`、`A3-core-h2d-matrix-full-64MB.png`、`A3-core-h2d-matrix-full-256MB.png`。
+- `A3-core-pair-d2d-matrix-full-8MB.xlsx`：固定 NPU pair `0,5`，640 rank0 core x 640 rank1 core，8MB allgather。
+- `A3-core-pair-d2d-matrix-full-8MB.png`。
+- `A3-full-core-matrix-report.md`：实验命令、统计摘要和注意事项。
 
 ## 关于 `cpu:1` 为什么可能更快
 

@@ -21,11 +21,21 @@ torchrun \
   --dtype "${DTYPE:-float16}" \
   --iters "${ITERS:-20}" \
   --warmup "${WARMUP:-5}" \
-  --repeats "${REPEATS:-3}"
+  --repeats "${REPEATS:-3}" \
+  --checkpoint-every-pairs "${CHECKPOINT_EVERY_PAIRS:-256}" \
+  --record-ranks "${RECORD_RANKS:-rank0}"
 
 python3 -m cluster_health_detect.matrix_excel "$OUT_DIR" \
   --affinity-json "$OUT_DIR/affinity.json" \
   --out "$OUT_DIR/core-pair-d2d-matrix.xlsx"
 
-echo "Wrote $OUT_DIR"
+if python3 - <<'PY' >/dev/null 2>&1
+import PIL
+PY
+then
+  python3 -m cluster_health_detect.matrix_png "$OUT_DIR" --out-dir "$OUT_DIR/png"
+else
+  echo "Pillow not available; skip PNG generation on this host."
+fi
 
+echo "Wrote $OUT_DIR"

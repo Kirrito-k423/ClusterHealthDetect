@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 import sys
@@ -52,17 +53,22 @@ def resolve_device_kind(stack: dict[str, Any], requested: str) -> str:
     return "none"
 
 
-def measure_h2d(torch: Any, device: str, dtype_name: str, size_mb: int, iters: int, warmup: int) -> dict[str, Any]:
+def make_host_buffer(torch: Any, dtype_name: str, size_mb: int) -> tuple[Any, bool, int, int]:
     dtype = torch_dtype(torch, dtype_name)
     element_size = torch.tensor([], dtype=dtype).element_size()
     numel = max(1, size_mb * 1024 * 1024 // element_size)
     src = torch.empty(numel, dtype=dtype, device="cpu")
+    src.fill_(1)
     try:
-        src = src.pin_memory()
-        pinned = True
+        pinned_src = src.pin_memory()
+        pinned_src.fill_(1)
+        return pinned_src, True, numel, element_size
     except Exception:
-        pinned = False
-    dst = torch.empty(numel, dtype=dtype, device=device)
+        return src, False, numel, element_size
+
+
+def measure_h2d_from_host(torch: Any, src: Any, pinned: bool, numel: int, element_size: int, device: str, size_mb: int, iters: int, warmup: int) -> dict[str, Any]:
+    dst = torch.empty(numel, dtype=src.dtype, device=device)
     for _ in range(warmup):
         dst.copy_(src, non_blocking=True)
     synchronize(torch, device)
@@ -107,6 +113,7 @@ def main() -> int:
     parser.add_argument("--iters", type=int, default=20)
     parser.add_argument("--warmup", type=int, default=5)
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument("--checkpoint-every-cpus", type=int, default=1, help="Write partial JSON after this many CPUs; 0 disables checkpoints")
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir)
@@ -119,7 +126,25 @@ def main() -> int:
     device_ids = parse_ids(args.devices, available_device_ids(stack, device_kind))
     sizes_mb = parse_csv_ints(args.sizes_mb)
 
+    meta: dict[str, Any] = {
+        "created_at": now_utc(),
+        "argv": sys.argv,
+        "env": env_snapshot(),
+        "torch_stack": stack,
+        "device_kind": device_kind,
+        "device_ids": device_ids,
+        "cpu_ids": cpu_ids,
+        "sizes_mb": sizes_mb,
+        "affinity_summary": affinity_summary,
+        "npu_smi_head": run_cmd(["npu-smi", "info"], timeout=10),
+    }
     metrics: list[dict[str, Any]] = []
+
+    def save_partial(current_cpu: int | None = None) -> None:
+        if not meta:
+            return
+        payload = {"meta": {**meta, "partial": True, "last_completed_cpu": current_cpu, "updated_at": now_utc()}, "metrics": metrics}
+        write_json(out_dir / "partial_results.json", payload)
     torch = None
     if stack["torch_ok"] and device_kind in {"npu", "cuda"} and device_ids:
         import torch as torch_module  # type: ignore
@@ -132,18 +157,20 @@ def main() -> int:
         metrics.append(metric_base(None, None, None, status="skip", reason=reason))
 
     if torch is not None:
+        total_cpus = len(cpu_ids)
         for repeat in range(args.repeats):
-            for cpu in cpu_ids:
+            for cpu_idx, cpu in enumerate(cpu_ids, 1):
                 ok, actual, err = set_current_affinity({cpu})
                 if not ok or cpu not in actual:
                     metrics.append(metric_base(cpu, None, repeat, status="error", operation="bind_cpu", actual_cpus=actual, reason=err))
                     continue
                 actual_list = format_cpu_list(actual)
-                for device_id in device_ids:
-                    try:
-                        device = set_device(torch, device_kind, device_id)
-                        for size_mb in sizes_mb:
-                            result = measure_h2d(torch, device, args.dtype, size_mb, args.iters, args.warmup)
+                for size_mb in sizes_mb:
+                    src, pinned, numel, element_size = make_host_buffer(torch, args.dtype, size_mb)
+                    for device_id in device_ids:
+                        try:
+                            device = set_device(torch, device_kind, device_id)
+                            result = measure_h2d_from_host(torch, src, pinned, numel, element_size, device, size_mb, args.iters, args.warmup)
                             metrics.append(
                                 metric_base(
                                     cpu,
@@ -156,35 +183,31 @@ def main() -> int:
                                     bind_actual_cpus_list=actual_list,
                                 )
                             )
-                    except Exception as exc:
-                        metrics.append(
-                            metric_base(
-                                cpu,
-                                device_id,
-                                repeat,
-                                status="error",
-                                operation="copy",
-                                device_kind=device_kind,
-                                error=repr(exc),
-                                bind_actual_cpus=actual,
-                                bind_actual_cpus_list=actual_list,
+                        except Exception as exc:
+                            metrics.append(
+                                metric_base(
+                                    cpu,
+                                    device_id,
+                                    repeat,
+                                    status="error",
+                                    operation="copy",
+                                    device_kind=device_kind,
+                                    size_mb=size_mb,
+                                    error=repr(exc),
+                                    bind_actual_cpus=actual,
+                                    bind_actual_cpus_list=actual_list,
+                                )
                             )
-                        )
+                    del src
+                    gc.collect()
+                if args.checkpoint_every_cpus and cpu_idx % args.checkpoint_every_cpus == 0:
+                    save_partial(cpu)
+                    print(f"progress repeat={repeat + 1}/{args.repeats} cpu={cpu_idx}/{total_cpus} metrics={len(metrics)}", flush=True)
 
     if original_affinity is not None:
         set_current_affinity(original_affinity)
 
-    meta = {
-        "created_at": now_utc(),
-        "argv": sys.argv,
-        "env": env_snapshot(),
-        "torch_stack": stack,
-        "device_kind": device_kind,
-        "device_ids": device_ids,
-        "cpu_ids": cpu_ids,
-        "affinity_summary": affinity_summary,
-        "npu_smi_head": run_cmd(["npu-smi", "info"], timeout=10),
-    }
+    meta["finished_at"] = now_utc()
     payload = {"meta": meta, "metrics": metrics}
     write_json(out_dir / "results.json", payload)
     write_json(out_dir / "affinity.json", {"created_at": now_utc(), "summary": affinity_summary, "cpus": [record.to_dict() for record in records]})
@@ -199,4 +222,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
