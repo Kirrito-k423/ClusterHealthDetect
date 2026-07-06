@@ -467,7 +467,10 @@ def init_dist(torch: Any, backend: str, device: str) -> tuple[bool, str | None]:
     if not torch.distributed.is_available():
         return False, "torch.distributed is not available"
     if torch.distributed.is_initialized():
-        return True, None
+        try:
+            return True, str(torch.distributed.get_backend())
+        except Exception:
+            return True, "initialized"
 
     selected = backend
     if backend == "auto":

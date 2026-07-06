@@ -55,6 +55,7 @@ bash scripts/run_single_node.sh
 
 ## 观察
 
+- `cpu:1` 不是绑核；它只是每 rank 增加 1 个 CPU burner 进程，rank 本身仍由系统调度。因此 `cpu:1` 的 allgather 高于 `idle` 不能直接解释为“绑核有效”，更可能是短测波动、warmup/测试顺序或调度状态差异。绑核影响应看 NUMA affinity matrix。
 - 只看空载 allgather 会漏掉负载敏感性：本轮 `idle` 下 8 MB global allgather 约 27.1 GB/s，但 `device` 背景负载下降到约 20.2-20.8 GB/s。
 - 设备背景负载下，NPU matmul 512 的 rank 差异达到约 1.58x；这类离散和真实 SFT 训练中的计算/通信重叠更接近。
 - H2D 在 8 MB 下从约 54.0 GB/s 降到约 46-47 GB/s，说明 host-device 路径也应纳入 pod4/pod8 对比。
