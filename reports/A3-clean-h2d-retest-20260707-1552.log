@@ -1,0 +1,248 @@
+[start] 2026-07-07T15:50:59+08:00 host=localhost.localdomain pwd=/home/t00906153/ClusterHealthDetect
+[npu-before]
++------------------------------------------------------------------------------------------------------------------+
+| npu-smi 26.0.rc1                            Version: 26.0.rc1                                                    |
++---------------------------+---------------+----------------------------------------------------------------------+
+| NPU   Name                | Health        | Power(W)             Temp(C)                 Hugepages-Usage(page)   |
+| Chip  Phy-ID              | Bus-Id        | AICore(%)            Memory-Usage(MB)        HBM-Usage(MB)           |
++===========================+===============+======================================================================+
+| 0     Ascend910           | OK            | 171.7                52                      0    / 0                |
+| 0     0                   | 0000:9D:00.0  | 0                    0    / 0                3143 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 0     Ascend910           | OK            | -                    49                      0    / 0                |
+| 1     1                   | 0000:9F:00.0  | 0                    0    / 0                2875 / 65536            |
++===========================+===============+======================================================================+
+| 1     Ascend910           | OK            | 172.0                51                      0    / 0                |
+| 0     2                   | 0000:99:00.0  | 0                    0    / 0                3120 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 1     Ascend910           | OK            | -                    51                      0    / 0                |
+| 1     3                   | 0000:9B:00.0  | 0                    0    / 0                2892 / 65536            |
++===========================+===============+======================================================================+
+| 2     Ascend910           | OK            | 176.6                54                      0    / 0                |
+| 0     4                   | 0000:95:00.0  | 0                    0    / 0                3127 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 2     Ascend910           | OK            | -                    53                      0    / 0                |
+| 1     5                   | 0000:97:00.0  | 0                    0    / 0                2889 / 65536            |
++===========================+===============+======================================================================+
+| 3     Ascend910           | OK            | 166.6                55                      0    / 0                |
+| 0     6                   | 0000:91:00.0  | 0                    0    / 0                3123 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 3     Ascend910           | OK            | -                    54                      0    / 0                |
+| 1     7                   | 0000:93:00.0  | 0                    0    / 0                2890 / 65536            |
++===========================+===============+======================================================================+
+| 4     Ascend910           | OK            | 168.2                52                      0    / 0                |
+| 0     8                   | 0000:8D:00.0  | 0                    0    / 0                3122 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 4     Ascend910           | OK            | -                    51                      0    / 0                |
+| 1     9                   | 0000:8F:00.0  | 0                    0    / 0                2886 / 65536            |
++===========================+===============+======================================================================+
+| 5     Ascend910           | OK            | 168.2                51                      0    / 0                |
+| 0     10                  | 0000:89:00.0  | 0                    0    / 0                3133 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 5     Ascend910           | OK            | -                    51                      0    / 0                |
+| 1     11                  | 0000:8B:00.0  | 0                    0    / 0                2875 / 65536            |
++===========================+===============+======================================================================+
+| 6     Ascend910           | OK            | 170.6                52                      0    / 0                |
+| 0     12                  | 0000:85:00.0  | 0                    0    / 0                3121 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 6     Ascend910           | OK            | -                    54                      0    / 0                |
+| 1     13                  | 0000:87:00.0  | 0                    0    / 0                2889 / 65536            |
++===========================+===============+======================================================================+
+| 7     Ascend910           | OK            | 181.7                54                      0    / 0                |
+| 0     14                  | 0000:81:00.0  | 0                    0    / 0                3132 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 7     Ascend910           | OK            | -                    54                      0    / 0                |
+| 1     15                  | 0000:83:00.0  | 0                    0    / 0                2877 / 65536            |
++===========================+===============+======================================================================+
++---------------------------+---------------+----------------------------------------------------------------------+
+| NPU     Chip              | Process id    | Process name       | Process memory(MB)    | Process id in container |
++===========================+===============+======================================================================+
+| No running processes found in NPU 0                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 1                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 2                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 3                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 4                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 5                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 6                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 7                                                                              |
++===========================+===============+======================================================================+
+[h2d-start] 2026-07-07T15:51:02+08:00 out=results/core-h2d-matrix-clean-20260707-1552
+progress repeat=1/1 cpu=16/640 metrics=768
+progress repeat=1/1 cpu=32/640 metrics=1536
+progress repeat=1/1 cpu=48/640 metrics=2304
+progress repeat=1/1 cpu=64/640 metrics=3072
+progress repeat=1/1 cpu=80/640 metrics=3840
+progress repeat=1/1 cpu=96/640 metrics=4608
+progress repeat=1/1 cpu=112/640 metrics=5376
+progress repeat=1/1 cpu=128/640 metrics=6144
+progress repeat=1/1 cpu=144/640 metrics=6912
+progress repeat=1/1 cpu=160/640 metrics=7680
+progress repeat=1/1 cpu=176/640 metrics=8448
+progress repeat=1/1 cpu=192/640 metrics=9216
+progress repeat=1/1 cpu=208/640 metrics=9984
+progress repeat=1/1 cpu=224/640 metrics=10752
+progress repeat=1/1 cpu=240/640 metrics=11520
+progress repeat=1/1 cpu=256/640 metrics=12288
+progress repeat=1/1 cpu=272/640 metrics=13056
+progress repeat=1/1 cpu=288/640 metrics=13824
+progress repeat=1/1 cpu=304/640 metrics=14592
+progress repeat=1/1 cpu=320/640 metrics=15360
+progress repeat=1/1 cpu=336/640 metrics=16128
+progress repeat=1/1 cpu=352/640 metrics=16896
+progress repeat=1/1 cpu=368/640 metrics=17664
+progress repeat=1/1 cpu=384/640 metrics=18432
+progress repeat=1/1 cpu=400/640 metrics=19200
+progress repeat=1/1 cpu=416/640 metrics=19968
+progress repeat=1/1 cpu=432/640 metrics=20736
+progress repeat=1/1 cpu=448/640 metrics=21504
+progress repeat=1/1 cpu=464/640 metrics=22272
+progress repeat=1/1 cpu=480/640 metrics=23040
+progress repeat=1/1 cpu=496/640 metrics=23808
+progress repeat=1/1 cpu=512/640 metrics=24576
+progress repeat=1/1 cpu=528/640 metrics=25344
+progress repeat=1/1 cpu=544/640 metrics=26112
+progress repeat=1/1 cpu=560/640 metrics=26880
+progress repeat=1/1 cpu=576/640 metrics=27648
+progress repeat=1/1 cpu=592/640 metrics=28416
+progress repeat=1/1 cpu=608/640 metrics=29184
+progress repeat=1/1 cpu=624/640 metrics=29952
+progress repeat=1/1 cpu=640/640 metrics=30720
+[Warning]: tiling struct [ReduceOpTilingDataV2] is conflict with one in file lp_norm_reduce.cc, line 41
+[Warning]: tiling struct [ReduceOpTilingDataV2] is conflict with one in file lp_norm_reduce.cc, line 41
+metrics=30720 ok=30720 gbps_max=59.926 gbps_median=58.289
+results/core-h2d-matrix-clean-20260707-1552
+results/core-h2d-matrix-clean-20260707-1552/core-h2d-matrix.xlsx
+results/core-h2d-matrix-clean-20260707-1552/png/h2d_cpu_core_by_npu_16MB.png
+results/core-h2d-matrix-clean-20260707-1552/png/h2d_cpu_core_by_npu_64MB.png
+results/core-h2d-matrix-clean-20260707-1552/png/h2d_cpu_core_by_npu_256MB.png
+Wrote results/core-h2d-matrix-clean-20260707-1552
+[h2d-done] 2026-07-07T16:15:13+08:00
+[npu-between]
++------------------------------------------------------------------------------------------------------------------+
+| npu-smi 26.0.rc1                            Version: 26.0.rc1                                                    |
++---------------------------+---------------+----------------------------------------------------------------------+
+| NPU   Name                | Health        | Power(W)             Temp(C)                 Hugepages-Usage(page)   |
+| Chip  Phy-ID              | Bus-Id        | AICore(%)            Memory-Usage(MB)        HBM-Usage(MB)           |
++===========================+===============+======================================================================+
+| 0     Ascend910           | OK            | 171.9                52                      0    / 0                |
+| 0     0                   | 0000:9D:00.0  | 0                    0    / 0                3147 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 0     Ascend910           | OK            | -                    50                      0    / 0                |
+| 1     1                   | 0000:9F:00.0  | 0                    0    / 0                2875 / 65536            |
++===========================+===============+======================================================================+
+| 1     Ascend910           | OK            | 172.6                51                      0    / 0                |
+| 0     2                   | 0000:99:00.0  | 0                    0    / 0                3120 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 1     Ascend910           | OK            | -                    51                      0    / 0                |
+| 1     3                   | 0000:9B:00.0  | 0                    0    / 0                2892 / 65536            |
++===========================+===============+======================================================================+
+| 2     Ascend910           | OK            | 177.4                54                      0    / 0                |
+| 0     4                   | 0000:95:00.0  | 0                    0    / 0                3128 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 2     Ascend910           | OK            | -                    53                      0    / 0                |
+| 1     5                   | 0000:97:00.0  | 0                    0    / 0                2890 / 65536            |
++===========================+===============+======================================================================+
+| 3     Ascend910           | OK            | 166.9                55                      0    / 0                |
+| 0     6                   | 0000:91:00.0  | 0                    0    / 0                3122 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 3     Ascend910           | OK            | -                    54                      0    / 0                |
+| 1     7                   | 0000:93:00.0  | 0                    0    / 0                2892 / 65536            |
++===========================+===============+======================================================================+
+| 4     Ascend910           | OK            | 169.7                52                      0    / 0                |
+| 0     8                   | 0000:8D:00.0  | 0                    0    / 0                3121 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 4     Ascend910           | OK            | -                    52                      0    / 0                |
+| 1     9                   | 0000:8F:00.0  | 0                    0    / 0                2887 / 65536            |
++===========================+===============+======================================================================+
+| 5     Ascend910           | OK            | 168.6                52                      0    / 0                |
+| 0     10                  | 0000:89:00.0  | 0                    0    / 0                3133 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 5     Ascend910           | OK            | -                    51                      0    / 0                |
+| 1     11                  | 0000:8B:00.0  | 0                    0    / 0                2876 / 65536            |
++===========================+===============+======================================================================+
+| 6     Ascend910           | OK            | 171.7                53                      0    / 0                |
+| 0     12                  | 0000:85:00.0  | 0                    0    / 0                3120 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 6     Ascend910           | OK            | -                    54                      0    / 0                |
+| 1     13                  | 0000:87:00.0  | 0                    0    / 0                2890 / 65536            |
++===========================+===============+======================================================================+
+| 7     Ascend910           | OK            | 181.2                54                      0    / 0                |
+| 0     14                  | 0000:81:00.0  | 0                    0    / 0                3133 / 65536            |
++------------------------------------------------------------------------------------------------------------------+
+| 7     Ascend910           | OK            | -                    55                      0    / 0                |
+| 1     15                  | 0000:83:00.0  | 0                    0    / 0                2878 / 65536            |
++===========================+===============+======================================================================+
++---------------------------+---------------+----------------------------------------------------------------------+
+| NPU     Chip              | Process id    | Process name       | Process memory(MB)    | Process id in container |
++===========================+===============+======================================================================+
+| No running processes found in NPU 0                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 1                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 2                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 3                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 4                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 5                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 6                                                                              |
++===========================+===============+======================================================================+
+| No running processes found in NPU 7                                                                              |
++===========================+===============+======================================================================+
+[d2d-start] 2026-07-07T16:15:14+08:00 out=results/core-pair-d2d-matrix-clean-20260707-1552
+W0707 16:15:16.044000 1457202 site-packages/torch/distributed/run.py:766]
+W0707 16:15:16.044000 1457202 site-packages/torch/distributed/run.py:766] *****************************************
+W0707 16:15:16.044000 1457202 site-packages/torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+W0707 16:15:16.044000 1457202 site-packages/torch/distributed/run.py:766] *****************************************
+[Warning]: tiling struct [ReduceOpTilingDataV2] is conflict with one in file lp_norm_reduce.cc, line 41
+[Warning]: tiling struct [ReduceOpTilingDataV2] is conflict with one in file lp_norm_reduce.cc, line 41
+[Warning]: tiling struct [ReduceOpTilingDataV2] is conflict with one in file lp_norm_reduce.cc, line 41
+[Warning]: tiling struct [ReduceOpTilingDataV2] is conflict with one in file lp_norm_reduce.cc, line 41
+[W707 16:15:23.481139500 compiler_depend.ts:1065] Warning: The watchdog timeout 300000ms(which is set by init_process_group) is less than or equal to HCCL execution timeout 1836000ms! The plog may not be recorded. (function ProcessGroupHCCL)
+/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user.
+  warnings.warn(  # warn only once
+/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/distributed_c10d.py:4631: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user.
+  warnings.warn(  # warn only once
+/home/t00906153/ClusterHealthDetect/cluster_health_detect/core_pair_d2d_matrix.py:72: UserWarning: Cannot create tensor with interal format while allow_internel_format=False, tensor will be created with base format. (Triggered internally at build/CMakeFiles/torch_npu.dir/compiler_depend.ts:338.)
+  output = [torch.empty_like(tensor) for _ in range(torch.distributed.get_world_size())]
+/home/t00906153/ClusterHealthDetect/cluster_health_detect/core_pair_d2d_matrix.py:72: UserWarning: Cannot create tensor with interal format while allow_internel_format=False, tensor will be created with base format. (Triggered internally at build/CMakeFiles/torch_npu.dir/compiler_depend.ts:338.)
+  output = [torch.empty_like(tensor) for _ in range(torch.distributed.get_world_size())]
+progress repeat=1/1 pairs=32768/409600 metrics_rank=32768
+progress repeat=1/1 pairs=65536/409600 metrics_rank=65536
+progress repeat=1/1 pairs=98304/409600 metrics_rank=98304
+progress repeat=1/1 pairs=131072/409600 metrics_rank=131072
+progress repeat=1/1 pairs=163840/409600 metrics_rank=163840
+W0707 16:21:40.241000 1457202 site-packages/torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGTERM death signal, shutting down workers
+W0707 16:21:40.242000 1457202 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 1457324 closing signal SIGTERM
+W0707 16:21:40.242000 1457202 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 1457325 closing signal SIGTERM
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/hy_qwen35_muon/bin/torchrun", line 6, in <module>
+    sys.exit(main())
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
+    result = agent.run()
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/root/miniconda3/envs/hy_qwen35_muon/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 1457202 got signal: 15

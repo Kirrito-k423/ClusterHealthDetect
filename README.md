@@ -156,8 +156,13 @@ results/.../png/*.png
 
 ## A3 全量样例
 
-本仓已在 A3 机器上跑过两组全量 core 矩阵，报告和产物见 `reports/`：
+本仓已在 A3 机器上跑过两组全量 core 矩阵。`2026-07-06` 的 `full` 结果是在共享环境下得到的；`2026-07-07` 的 `clean` 结果是在 A3-AK-182 清掉自动占卡任务后复测得到，建议优先作为当前 A3 的基线。报告和产物见 `reports/`：
 
+- `A3-clean-core-matrix-report.md`：清理外部占用后的 H2D/D2D 复测报告。
+- `A3-core-h2d-matrix-clean-20260707.xlsx`：640 CPU core x 16 NPU x 16/64/256MB H2D clean run。
+- `A3-core-h2d-matrix-clean-20260707-16MB.png`、`A3-core-h2d-matrix-clean-20260707-64MB.png`、`A3-core-h2d-matrix-clean-20260707-256MB.png`。
+- `A3-core-pair-d2d-matrix-clean-20260707-8MB.xlsx`：固定 NPU pair `0,5`，640 rank0 core x 640 rank1 core，8MB allgather clean run。
+- `A3-core-pair-d2d-matrix-clean-20260707-8MB.png`。
 - `A3-core-h2d-matrix-full.xlsx`：640 CPU core x 16 NPU x 16/64/256MB H2D。
 - `A3-core-h2d-matrix-full-16MB.png`、`A3-core-h2d-matrix-full-64MB.png`、`A3-core-h2d-matrix-full-256MB.png`。
 - `A3-core-pair-d2d-matrix-full-8MB.xlsx`：固定 NPU pair `0,5`，640 rank0 core x 640 rank1 core，8MB allgather。
