@@ -166,6 +166,8 @@ results/.../png/*.png
 - `A3-cross-node-h2d-npu0-report.md`：对比 A3-AK-182 与 A3-AX-180 的 H2D 64MB NPU0 现象。
 - `A3-180-core-h2d-matrix-clean-64MB-20260708.xlsx`：A3-AX-180 上 384 CPU core x 16 NPU x 64MB H2D clean run。
 - `A3-180-core-h2d-matrix-clean-64MB-20260708.png`。
+- `A3-180-size-sweep-h2d-d2d-hccl-20260708.md`：A3-AX-180 上 H2D、同卡 D2D copy、2-rank HCCL allgather 从 0.125MB 到 1024MB 的尺寸曲线与 `HCCL_BUFFSIZE` 对比。
+- `A3-180-h2d-d2d-hccl-size-sweep-20260708.png`、`A3-180-h2d-d2d-hccl-size-sweep-20260708.csv`。
 - `A3-core-h2d-matrix-full.xlsx`：640 CPU core x 16 NPU x 16/64/256MB H2D。
 - `A3-core-h2d-matrix-full-16MB.png`、`A3-core-h2d-matrix-full-64MB.png`、`A3-core-h2d-matrix-full-256MB.png`。
 - `A3-core-pair-d2d-matrix-full-8MB.xlsx`：固定 NPU pair `0,5`，640 rank0 core x 640 rank1 core，8MB allgather。

@@ -1,0 +1,386 @@
+{
+  "rows": [
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 131072,
+      "size_mb": 0.125,
+      "iters": 200,
+      "avg_seconds": 3.353104999405332e-05,
+      "gbps": 3.908973921879733,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 262144,
+      "size_mb": 0.25,
+      "iters": 200,
+      "avg_seconds": 0.0009093121349724242,
+      "gbps": 0.2882882454966355,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 524288,
+      "size_mb": 0.5,
+      "iters": 200,
+      "avg_seconds": 0.0006754908349830657,
+      "gbps": 0.7761585692175138,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 1048576,
+      "size_mb": 1.0,
+      "iters": 200,
+      "avg_seconds": 0.0006089439850620693,
+      "gbps": 1.7219580548005895,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 2097152,
+      "size_mb": 2.0,
+      "iters": 200,
+      "avg_seconds": 0.0022715910349506885,
+      "gbps": 0.9232084330908291,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 4194304,
+      "size_mb": 4.0,
+      "iters": 128,
+      "avg_seconds": 0.00047092474221699376,
+      "gbps": 8.906527145408171,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 8388608,
+      "size_mb": 8.0,
+      "iters": 64,
+      "avg_seconds": 0.0009959580625036324,
+      "gbps": 8.42265183225966,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 16777216,
+      "size_mb": 16.0,
+      "iters": 32,
+      "avg_seconds": 0.0006001844376442023,
+      "gbps": 27.953433890843012,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 33554432,
+      "size_mb": 32.0,
+      "iters": 16,
+      "avg_seconds": 0.011927550125619746,
+      "gbps": 2.8131872552710435,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 67108864,
+      "size_mb": 64.0,
+      "iters": 8,
+      "avg_seconds": 0.020906483250655583,
+      "gbps": 3.2099546918248727,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 134217728,
+      "size_mb": 128.0,
+      "iters": 4,
+      "avg_seconds": 0.004999570250220131,
+      "gbps": 26.84585299988342,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 268435456,
+      "size_mb": 256.0,
+      "iters": 2,
+      "avg_seconds": 0.009879242003080435,
+      "gbps": 27.17166518608406,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 536870912,
+      "size_mb": 512.0,
+      "iters": 1,
+      "avg_seconds": 0.01971788500668481,
+      "gbps": 27.227611471412303,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "h2d",
+      "device_id": 8,
+      "size_bytes": 1073741824,
+      "size_mb": 1024.0,
+      "iters": 1,
+      "avg_seconds": 0.03905303499777801,
+      "gbps": 27.49445271183385,
+      "pinned": true,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 131072,
+      "size_mb": 0.125,
+      "iters": 200,
+      "avg_seconds": 1.558052004838828e-05,
+      "gbps": 8.412556165835984,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 262144,
+      "size_mb": 0.25,
+      "iters": 200,
+      "avg_seconds": 1.554672002384905e-05,
+      "gbps": 16.861691700748754,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 524288,
+      "size_mb": 0.5,
+      "iters": 200,
+      "avg_seconds": 1.3043700018897652e-05,
+      "gbps": 40.194729964689,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 1048576,
+      "size_mb": 1.0,
+      "iters": 200,
+      "avg_seconds": 1.2461615042411723e-05,
+      "gbps": 84.14447055468236,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 2097152,
+      "size_mb": 2.0,
+      "iters": 200,
+      "avg_seconds": 1.2562714982777833e-05,
+      "gbps": 166.93461587522884,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 4194304,
+      "size_mb": 4.0,
+      "iters": 128,
+      "avg_seconds": 1.2806757808903058e-05,
+      "gbps": 327.5070913798483,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 8388608,
+      "size_mb": 8.0,
+      "iters": 64,
+      "avg_seconds": 1.2756374871969456e-05,
+      "gbps": 657.6012451964641,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 16777216,
+      "size_mb": 16.0,
+      "iters": 32,
+      "avg_seconds": 1.3088843843434006e-05,
+      "gbps": 1281.7951073972251,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 33554432,
+      "size_mb": 32.0,
+      "iters": 16,
+      "avg_seconds": 1.8729062503552996e-05,
+      "gbps": 1791.5702931545325,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 67108864,
+      "size_mb": 64.0,
+      "iters": 8,
+      "avg_seconds": 3.095087413385045e-05,
+      "gbps": 2168.238083027328,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 134217728,
+      "size_mb": 128.0,
+      "iters": 4,
+      "avg_seconds": 0.00022397924840333872,
+      "gbps": 599.2418001077607,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 268435456,
+      "size_mb": 256.0,
+      "iters": 2,
+      "avg_seconds": 0.0004449929983820766,
+      "gbps": 603.235235107043,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 536870912,
+      "size_mb": 512.0,
+      "iters": 1,
+      "avg_seconds": 0.0008835369953885674,
+      "gbps": 607.6382933618887,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    },
+    {
+      "operation": "d2d_same_device",
+      "device_id": 8,
+      "size_bytes": 1073741824,
+      "size_mb": 1024.0,
+      "iters": 1,
+      "avg_seconds": 0.00173033399914857,
+      "gbps": 620.540210461302,
+      "pinned": null,
+      "cpu_affinity": [
+        0
+      ]
+    }
+  ],
+  "sizes": [
+    131072,
+    262144,
+    524288,
+    1048576,
+    2097152,
+    4194304,
+    8388608,
+    16777216,
+    33554432,
+    67108864,
+    134217728,
+    268435456,
+    536870912,
+    1073741824
+  ],
+  "device_id": 8,
+  "note": "A3-AX-180 shared-load environment; NPU groups 0-3 occupied by VeOmni, NPU groups 4-7 had no running process at start."
+}
